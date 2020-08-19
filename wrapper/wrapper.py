@@ -6,7 +6,7 @@ from pathlib import Path
 
 cdo = Cdo()
 
-#other imports
+# other imports
 
 __all__ = []
 
@@ -188,7 +188,7 @@ def run_track(input, outdir):
 
         # calculate vorticity if UV file
         if data.get_variable_type() == 'va':
-            #os.chdir(cwd)
+            # os.chdir(cwd)
             tempname = "vor850_temp.dat"
             calc_vorticity("./indat/"+year_file, tempname)
             year_file = tempname
@@ -207,6 +207,7 @@ def run_track(input, outdir):
             line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/42/\" " + specfilt + " > spec.test"
             line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
             # NH
+            # THIS CHANGE IT -- OMG UR DUMB
             line_5 = "master -c=" + year + "_" + input[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T42_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
 
         line_2 = "bin/track.linux -i " + year_file + " -f y" + year + " < spec.test"
@@ -217,16 +218,16 @@ def run_track(input, outdir):
         os.environ["FC"] = "gfortran"
         os.environ["ARFLAGS"] = ""
         os.environ["PATH"] += ":." 
-        
+
         print("Spectral filtering...")
-        
+
         os.system(line_1)
         os.system(line_2)
         os.system(line_3)
         os.system(line_4)
-        
+
         print("Running TRACK...")
-        
+
         os.system(line_5)
 
         # cleanup
