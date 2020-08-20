@@ -24,11 +24,12 @@ class cmip6_indat(object):
     def get_variable_type(self):
         return self.vars[-1]
 
-def merge_uv(u_file, v_file):
+def merge_uv(u_file, v_file, outfile):
     """
+    maybe get rid of this and just say the CDO line
     Only relevant for cmip6 because ERA5 already has them together
     """
-    outfile = "~/TRACK-1.5.2/indat/uv" + u_file[2:]
+    #outfile = "~/TRACK-1.5.2/indat/uv" + u_file[2:]
     cdo.merge(input=" ".join((u_file, v_file)), output=outfile)
     return
 
@@ -65,6 +66,42 @@ def regrid_cmip6(input, outfile):
         else:
             cdo.remapcon("n120", input=input, output=outfile)
 
+        print("Regridded to gaussian grid.")
+
+    return
+
+def setup_track():
+    """
+    
+    """
+    ### edit RUNDATIN files
+    # MSLP_A
+    with open('indat/template.MSLP_A.in', 'r') as file:
+        contents = file.read()
+    contents = contents.replace('DIR', str(Path.home()))
+    with open('indat/RUNDATIN.MSLP_A.in', "w") as file:
+        file.write(contents)
+
+    # VOR
+    with open('indat/template.VOR.in', 'r') as file:
+        contents = file.read()
+    contents = contents.replace('DIR', str(Path.home()))
+    with open('indat/RUNDATIN.VOR.in', "w") as file:
+        file.write(contents)
+
+    # VOR_A
+    with open('indat/template.VOR_A.in', 'r') as file:
+        contents = file.read()
+    contents = contents.replace('DIR', str(Path.home()))
+    with open('indat/RUNDATIN.VOR_A.in', "w") as file:
+        file.write(contents)
+
+    ### copy files into local TRACK directory
+    os.system("cp trackdir/* " + str(Path.home()) + "/TRACK-1.5.2/")
+    os.system("cp indat/RUNDATIN.* " + str(Path.home()) + "/TRACK-1.5.2/indat")
+    os.system("cp data/* " + str(Path.home()) + "/TRACK-1.5.2/data")
+    os.system("cp tr2nc_new.tar " + str(Path.home()) + "/TRACK-1.5.2/utils")
+
     return
 
 def calc_vorticity(uv_file, outfile):
@@ -93,59 +130,22 @@ def calc_vorticity(uv_file, outfile):
 
     return
 
-def edit_rundatin():
+def track_mslp(input, outdir):
     """
-    """
-    # MSLP_A
-    with open('indat/template.MSLP_A.in', 'r') as file:
-        contents = file.read()
-    contents = contents.replace('DIR', str(Path.home()))
-    with open('indat/RUNDATIN.MSLP_A.in', "w") as file:
-        file.write(contents)
-
-    # VOR
-    with open('indat/template.VOR.in', 'r') as file:
-        contents = file.read()
-    contents = contents.replace('DIR', str(Path.home()))
-    with open('indat/RUNDATIN.VOR.in', "w") as file:
-        file.write(contents)
-
-    # VOR_A
-    with open('indat/template.VOR_A.in', 'r') as file:
-        contents = file.read()
-    contents = contents.replace('DIR', str(Path.home()))
-    with open('indat/RUNDATIN.VOR_A.in', "w") as file:
-        file.write(contents)
-    return
-
-def copy_files(data='none'):
-    """
-    """
-    os.system("cp trackdir/* " + str(Path.home()) + "/TRACK-1.5.2/")
-    
-    os.system("cp indat/RUNDATIN.* " + str(Path.home()) + "/TRACK-1.5.2/indat")
-
-    os.system("cp data/* " + str(Path.home()) + "/TRACK-1.5.2/data")
-    return
-
-
-def run_track(input, outdir):
-    """
-    
-    OR MAYBE THIS IS JUST SPECFILT??
-    
-    TODO
-    also ask if we should have higher resolutions for spectral filtering
-    INCLUDE SPECFILT RESOLUTION OPTION!!!
-    
-    SPLIT INTO YEARS AND RUN EACH FULL YEAR
-    ---- ask how to select seasons
     """
     input_basename = os.path.basename(input)
-    filled = input[:-3] + "_filled.nc"
-    os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + input + " " + filled)
-    print("Filled missing values.")
     
+    # regrid
+    regridded = input[:-3] + "_gaussian.nc"
+    regrid_cmip6(input, regridded)
+    
+    # fill missing values
+    filled = regridded[:-3] + "_filled.nc"
+    os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + regridded + " " + filled)
+    print("Filled missing values.")
+    os.system("rm " + regridded)
+
+    # get data info
     data = cmip6_indat(filled)
     nx, ny = data.get_nx_ny()
     years = cdo.showyear(input=filled)
@@ -154,72 +154,47 @@ def run_track(input, outdir):
     # copy data into TRACK indat directory
     tempname = "temp_file.nc"
     os.system("cp " + filled + " " + str(Path.home()) + "/TRACK-1.5.2/indat/" + tempname)
+    os.system("rm " + filled)
+    print("Data copied into TRACK/indat directory.")
 
-    # copy spectral filtering input files into TRACK directory
-    #os.system("cp indat/specfilt.in " + str(Path.home()) + "/TRACK-1.5.2/specfilt.in")
-    #os.system("cp indat/specfilt_nc.in " + str(Path.home()) + "/TRACK-1.5.2/specfilt_nc.in")
-    #os.system("cp indat/RUNDATIN.* ")
-    copy_files()
-
-    print("Inputs copied to TRACK directory.")
-
-    # MSLP
-    if data.get_variable_type() == "psl":
-        specfilt = "specfilt_nc.in"
-        var = "MSLP"
-
-    # UV
-    elif data.get_variable_type() == 'va':
-        specfilt = "specfilt.in"
-        var = "VOR"
-
-    # other
-    else:
-        print("Invalid variable type: please use CMIP6 mslp or uv-wind.")
-        return
-
+    # change working directory
     cwd = os.getcwd()
-    os.chdir(str(Path.home()) + "/TRACK-1.5.2") # maybeTODO: find some way to get TRACK directory for future versions
+    os.chdir(str(Path.home()) + "/TRACK-1.5.2")
 
     # do tracking for one year at a time
     for year in years:
         print(year + "...")
         year_file = 'tempyear.nc'
         cdo.selyear(year, input="indat/"+tempname, output="indat/"+year_file)
-
-        # calculate vorticity if UV file
-        if data.get_variable_type() == 'va':
-            # os.chdir(cwd)
-            tempname = "vor850_temp.dat"
-            calc_vorticity("./indat/"+year_file, tempname)
-            year_file = tempname
+        
+        ####### ask about utility to combine years, respond and say no problems with n
         
         # spectral filtering
         # NOTE: NORTHERN HEMISPHERE; add SH option???
         if int(ny) >= 96: # T63
             fname = "T63filt_" + year + ".dat"
-            line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/63/\" " + specfilt + " > spec.test"
+            line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/63/\" specfilt_nc.in > spec.test"
             line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
             # NH
-            line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T63_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
+            line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T63_NH -n=1,62,23 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN.MSLP"
 
         else: # T42
             fname = "T42filt_" + year + ".dat"
-            line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/42/\" " + specfilt + " > spec.test"
+            line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/42/\" specfilt_nc.in > spec.test"
             line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
             # NH
-            # THIS CHANGE IT -- OMG UR DUMB
-            line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T42_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
+            line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T42_NH -n=1,62,23 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN.MSLP"
 
         line_2 = "bin/track.linux -i " + year_file + " -f y" + year + " < spec.test"
         line_4 = "rm outdat/specfil.y" + year + "_band000"
 
-        # tracking
+        # setting environment variables
         os.environ["CC"] = "gcc"
         os.environ["FC"] = "gfortran"
         os.environ["ARFLAGS"] = ""
         os.environ["PATH"] += ":." 
 
+        # executing the lines to run TRACK
         print("Spectral filtering...")
 
         os.system(line_1)
@@ -236,6 +211,91 @@ def run_track(input, outdir):
 
     return
 
+def track_uv_vor850(input, outdir):
+    """
+    """
+    # regrid
+    input_basename = os.path.basename(input)
+    
+    # regrid
+    regridded = input[:-3] + "_gaussian.nc"
+    regrid_cmip6(input, regridded)
+    
+    # fill missing values
+    filled = regridded[:-3] + "_filled.nc"
+    os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + regridded + " " + filled)
+    print("Filled missing values.")
+    os.system("rm " + regridded)
+
+    # get data info
+    data = cmip6_indat(filled)
+    nx, ny = data.get_nx_ny()
+    years = cdo.showyear(input=filled)
+    
+    ## files need to be moved to TRACK directory for TRACK to find them
+    # copy data into TRACK indat directory
+    tempname = "temp_file.nc"
+    os.system("cp " + filled + " " + str(Path.home()) + "/TRACK-1.5.2/indat/" + tempname)
+    os.system("rm " + filled)
+    print("Data copied into TRACK/indat directory.")
+
+    # change working directory
+    cwd = os.getcwd()
+    os.chdir(str(Path.home()) + "/TRACK-1.5.2")
+    
+    # do tracking for one year at a time
+    for year in years:
+        print(year + "...")
+        year_file = 'tempyear.nc'
+        cdo.selyear(year, input="indat/"+tempname, output="indat/"+year_file)
+        
+        # calculate vorticity from UV
+        tempname = "vor850_temp.dat"
+        calc_vorticity("./indat/"+year_file, tempname)
+        year_file = tempname
+        
+        # spectral filtering
+        # NOTE: NORTHERN HEMISPHERE; add SH option???
+        if int(ny) >= 96: # T63
+            fname = "T63filt_" + year + ".dat"
+            line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/63/\" specfilt.in > spec.test"
+            line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
+            # NH
+            line_5 = "master -c=" + year + "_vor850_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T63_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN.VOR"
+
+        else: # T42
+            fname = "T42filt_" + year + ".dat"
+            line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/42/\" specfilt.in > spec.test"
+            line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
+            # NH
+            line_5 = "master -c=" + year + "_vor850_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T42_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN.VOR"
+
+        line_2 = "bin/track.linux -i " + year_file + " -f y" + year + " < spec.test"
+        line_4 = "rm outdat/specfil.y" + year + "_band000"
+
+        # setting environment variables
+        os.environ["CC"] = "gcc"
+        os.environ["FC"] = "gfortran"
+        os.environ["ARFLAGS"] = ""
+        os.environ["PATH"] += ":." 
+
+        # executing the lines to run TRACK
+        print("Spectral filtering...")
+
+        os.system(line_1)
+        os.system(line_2)
+        os.system(line_3)
+        os.system(line_4)
+
+        print("Running TRACK...")
+
+        os.system(line_5)
+
+        # cleanup
+        os.system("rm indat/"+year_file)
+    
+    return
+
 def postprocess(input):
     """
     AHHHHHH
@@ -244,3 +304,128 @@ def postprocess(input):
     return
 
 # I SHOULD SPLIT INTO SEPARATE VOR AND MSLP FUNCTIONS!!! IM SO FUMB
+
+
+# def track_mslp():
+    # """
+    # """
+    
+    
+    # return
+
+# def track_uv_vor():
+    # """
+    # """
+    
+    # return
+
+# def track_ERA5():
+    
+    # return
+
+# def run_track(input, outdir):
+    # """
+    
+    # OR MAYBE THIS IS JUST SPECFILT??
+    
+    # TODO
+    # also ask if we should have higher resolutions for spectral filtering
+    # INCLUDE SPECFILT RESOLUTION OPTION!!!
+    
+    # SPLIT INTO YEARS AND RUN EACH FULL YEAR
+    # ---- ask how to select seasons
+    # """
+    # input_basename = os.path.basename(input)
+    # filled = input[:-3] + "_filled.nc"
+    # os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + input + " " + filled)
+    # print("Filled missing values.")
+    
+    # data = cmip6_indat(filled)
+    # nx, ny = data.get_nx_ny()
+    # years = cdo.showyear(input=filled)
+
+    # # files need to be moved to TRACK directory for TRACK to find them
+    # # copy data into TRACK indat directory
+    # tempname = "temp_file.nc"
+    # os.system("cp " + filled + " " + str(Path.home()) + "/TRACK-1.5.2/indat/" + tempname)
+
+    # # copy spectral filtering input files into TRACK directory
+    # #os.system("cp indat/specfilt.in " + str(Path.home()) + "/TRACK-1.5.2/specfilt.in")
+    # #os.system("cp indat/specfilt_nc.in " + str(Path.home()) + "/TRACK-1.5.2/specfilt_nc.in")
+    # #os.system("cp indat/RUNDATIN.* ")
+    # copy_files()
+
+    # print("Inputs copied to TRACK directory.")
+
+    # # MSLP
+    # if data.get_variable_type() == "psl":
+        # specfilt = "specfilt_nc.in"
+        # var = "MSLP"
+
+    # # UV
+    # elif data.get_variable_type() == 'va':
+        # specfilt = "specfilt.in"
+        # var = "VOR"
+
+    # # other
+    # else:
+        # print("Invalid variable type: please use CMIP6 mslp or uv-wind.")
+        # return
+
+    # cwd = os.getcwd()
+    # os.chdir(str(Path.home()) + "/TRACK-1.5.2") # maybeTODO: find some way to get TRACK directory for future versions
+
+    # # do tracking for one year at a time
+    # for year in years:
+        # print(year + "...")
+        # year_file = 'tempyear.nc'
+        # cdo.selyear(year, input="indat/"+tempname, output="indat/"+year_file)
+
+        # # calculate vorticity if UV file
+        # if data.get_variable_type() == 'va':
+            # # os.chdir(cwd)
+            # tempname = "vor850_temp.dat"
+            # calc_vorticity("./indat/"+year_file, tempname)
+            # year_file = tempname
+        
+        # # spectral filtering
+        # # NOTE: NORTHERN HEMISPHERE; add SH option???
+        # if int(ny) >= 96: # T63
+            # fname = "T63filt_" + year + ".dat"
+            # line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/63/\" " + specfilt + " > spec.test"
+            # line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
+            # # NH
+            # line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T63_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
+
+        # else: # T42
+            # fname = "T42filt_" + year + ".dat"
+            # line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/42/\" " + specfilt + " > spec.test"
+            # line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
+            # # NH
+            # # THIS CHANGE IT -- OMG UR DUMB
+            # line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T42_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
+
+        # line_2 = "bin/track.linux -i " + year_file + " -f y" + year + " < spec.test"
+        # line_4 = "rm outdat/specfil.y" + year + "_band000"
+
+        # # tracking
+        # os.environ["CC"] = "gcc"
+        # os.environ["FC"] = "gfortran"
+        # os.environ["ARFLAGS"] = ""
+        # os.environ["PATH"] += ":." 
+
+        # print("Spectral filtering...")
+
+        # os.system(line_1)
+        # os.system(line_2)
+        # os.system(line_3)
+        # os.system(line_4)
+
+        # print("Running TRACK...")
+
+        # os.system(line_5)
+
+        # # cleanup
+        # os.system("rm indat/"+year_file)
+
+    # return
