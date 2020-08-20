@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRACK Python Wrapper for CMIP6 &#8212; TRACK-CMIP6  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="track-python-wrapper-for-cmip6">
+<h1>TRACK Python Wrapper for CMIP6<a class="headerlink" href="#track-python-wrapper-for-cmip6" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html">TRACK</a> is a program for
+generating storm tracks from atmospheric or oceanographic data.</p>
+<p>This package implements a Python wrapper for using TRACK on CMIP6 data.</p>
+<div class="section" id="module-wrapper">
+<span id="function-api"></span><h2>Function API<a class="headerlink" href="#module-wrapper" title="Permalink to this headline">¶</a></h2>
+<p>Python wrapper for TRACK for CMIP6 data</p>
+<dl class="py function">
+<dt id="wrapper.calc_vorticity">
+<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">calc_vorticity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uv_file</span></em>, <em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.calc_vorticity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use TRACK to calculate vorticity at 850 hPa from horizontal wind velocities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uv_file</strong> (<em>string</em>) – Path to .nc file containing combined U and V data</p></li>
+<li><p><strong>outfile</strong> (<em>string</em>) – Desired path of vorticity file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="wrapper.cmip6_indat">
+<em class="property">class </em><code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">cmip6_indat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.cmip6_indat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to obtain information about the CMIP6 input data.</p>
+<p>Reads the netCDF file and scans its variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>string</em>) – Filename of a .nc file containing CMIP6 sea level pressure or wind
+velocity data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wrapper.regrid_cmip6">
+<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">regrid_cmip6</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em>, <em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.regrid_cmip6" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect grid of input CMIP6 data and regrid to gaussian grid if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>string</em>) – Path to .nc file containing input data</p></li>
+<li><p><strong>outfile</strong> (<em>string</em>) – Desired path of regridded file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wrapper.setup_track">
+<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">setup_track</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.setup_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure template input files according to local machine setup and copy
+into TRACK directory for tracking.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wrapper.track_mslp">
+<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">track_mslp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em>, <em class="sig-param"><span class="n">outdir</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.track_mslp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run TRACK on CMIP6 sea level pressure data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>string</em>) – Path to .nc file containing CMIP6 psl data</p></li>
+<li><p><strong>outdir</strong> (<em>string</em>) – Path of directory to output tracks to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wrapper.track_uv_vor850">
+<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">track_uv_vor850</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em>, <em class="sig-param"><span class="n">outdir</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.track_uv_vor850" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate 850 hPa vorticity from CMIP6 horizontal wind velocity data
+and run TRACK.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input</strong> (<em>string</em>) – Path to .nc file containing combined CMIP6 UV data</p></li>
+<li><p><strong>outdir</strong> (<em>string</em>) – Path of directory to output tracks to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">TRACK-CMIP6</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
