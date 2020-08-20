@@ -141,6 +141,7 @@ def run_track(input, outdir):
     SPLIT INTO YEARS AND RUN EACH FULL YEAR
     ---- ask how to select seasons
     """
+    input_basename = os.path.basename(input)
     filled = input[:-3] + "_filled.nc"
     os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + input + " " + filled)
     print("Filled missing values.")
@@ -200,7 +201,7 @@ def run_track(input, outdir):
             line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + "/;s/TRUNC/63/\" " + specfilt + " > spec.test"
             line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
             # NH
-            line_5 = "master -c=" + year + "_" + input[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T63_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
+            line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T63_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
 
         else: # T42
             fname = "T42filt_" + year + ".dat"
@@ -208,7 +209,7 @@ def run_track(input, outdir):
             line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
             # NH
             # THIS CHANGE IT -- OMG UR DUMB
-            line_5 = "master -c=" + year + "_" + input[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T42_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
+            line_5 = "master -c=" + year + "_" + input_basename[:-3] + " -e=track.linux -d=now -i=" + fname + " -f=y" + year + " -j=RUN_AT.in -k=initial.T42_NH -n=1,62,6 -o=" + outdir + " -r=RUN_AT_ -s=RUNDATIN." + var
 
         line_2 = "bin/track.linux -i " + year_file + " -f y" + year + " < spec.test"
         line_4 = "rm outdat/specfil.y" + year + "_band000"
