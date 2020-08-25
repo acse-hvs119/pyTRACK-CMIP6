@@ -9,6 +9,6 @@ This package implements a Python wrapper for using TRACK on CMIP6 data.
 Function API
 ------------
 
-.. automodule:: wrapper
+.. automodule:: track_wrapper
   :members:
   :imported-members:

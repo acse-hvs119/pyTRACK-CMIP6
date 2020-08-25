@@ -1,34 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TRACK Python Wrapper for CMIP6 &#8212; TRACK-CMIP6  documentation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>TRACK Python Wrapper for CMIP6 &mdash; pyTRACK-CMIP6  documentation</title>
+    
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pyTRACK-CMIP6  documentation" href="#" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
-  
+  </head>
+  <body role="document">  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="track-python-wrapper-for-cmip6">
@@ -36,84 +41,146 @@
 <p><a class="reference external" href="http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html">TRACK</a> is a program for
 generating storm tracks from atmospheric or oceanographic data.</p>
 <p>This package implements a Python wrapper for using TRACK on CMIP6 data.</p>
-<div class="section" id="module-wrapper">
-<span id="function-api"></span><h2>Function API<a class="headerlink" href="#module-wrapper" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-track_wrapper">
+<span id="function-api"></span><h2>Function API<a class="headerlink" href="#module-track_wrapper" title="Permalink to this headline">¶</a></h2>
 <p>Python wrapper for TRACK for CMIP6 data</p>
-<dl class="py function">
-<dt id="wrapper.calc_vorticity">
-<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">calc_vorticity</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uv_file</span></em>, <em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.calc_vorticity" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="track_wrapper.calc_vorticity">
+<code class="descclassname">track_wrapper.</code><code class="descname">calc_vorticity</code><span class="sig-paren">(</span><em>uv_file</em>, <em>outfile</em>, <em>copy_file=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.calc_vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use TRACK to calculate vorticity at 850 hPa from horizontal wind velocities.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>uv_file</strong> (<em>string</em>) – Path to .nc file containing combined U and V data</p></li>
-<li><p><strong>outfile</strong> (<em>string</em>) – Desired path of vorticity file</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>uv_file</strong> (<em>string</em>) &#8211; Path to .nc file containing combined U and V data</li>
+<li><strong>outfile</strong> (<em>string</em>) &#8211; Desired base name of .dat vorticity file that will be output into the
+TRACK-1.5.2/indat directory.</li>
+<li><strong>copy_file</strong> (<em>boolean, optional</em>) &#8211; Whether or not the uv_file will be copied into the TRACK directory. This
+is not needed within the tracking functions, but needed for manual use.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py class">
-<dt id="wrapper.cmip6_indat">
-<em class="property">class </em><code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">cmip6_indat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.cmip6_indat" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class to obtain information about the CMIP6 input data.</p>
+<dl class="class">
+<dt id="track_wrapper.cmip6_indat">
+<em class="property">class </em><code class="descclassname">track_wrapper.</code><code class="descname">cmip6_indat</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.cmip6_indat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class to obtain basic information about the CMIP6 input data.</p>
 <p>Reads the netCDF file and scans its variables.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>string</em>) – Filename of a .nc file containing CMIP6 sea level pressure or wind
-velocity data.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>string</em>) &#8211; Filename of a .nc file containing CMIP6 sea level pressure or wind
+velocity data.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py function">
-<dt id="wrapper.regrid_cmip6">
-<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">regrid_cmip6</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em>, <em class="sig-param"><span class="n">outfile</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.regrid_cmip6" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="track_wrapper.regrid_cmip6">
+<code class="descclassname">track_wrapper.</code><code class="descname">regrid_cmip6</code><span class="sig-paren">(</span><em>input</em>, <em>outfile</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.regrid_cmip6" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect grid of input CMIP6 data and regrid to gaussian grid if necessary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>string</em>) – Path to .nc file containing input data</p></li>
-<li><p><strong>outfile</strong> (<em>string</em>) – Desired path of regridded file</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input</strong> (<em>string</em>) &#8211; Path to .nc file containing input data</li>
+<li><strong>outfile</strong> (<em>string</em>) &#8211; Desired path of regridded file</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py function">
-<dt id="wrapper.setup_track">
-<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">setup_track</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.setup_track" title="Permalink to this definition">¶</a></dt>
-<dd><p>Configure template input files according to local machine setup and copy
-into TRACK directory for tracking.</p>
+<dl class="function">
+<dt id="track_wrapper.setup_files">
+<code class="descclassname">track_wrapper.</code><code class="descname">setup_files</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.setup_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure template input files according to local machine setup
+and copy into TRACK directory for use during preprocessing and tracking.</p>
 </dd></dl>
 
-<dl class="py function">
-<dt id="wrapper.track_mslp">
-<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">track_mslp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em>, <em class="sig-param"><span class="n">outdir</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.track_mslp" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="track_wrapper.setup_tr2nc">
+<code class="descclassname">track_wrapper.</code><code class="descname">setup_tr2nc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.setup_tr2nc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up TR2NC for converting TRACK output to NetCDF.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="track_wrapper.tr2nc_mslp">
+<code class="descclassname">track_wrapper.</code><code class="descname">tr2nc_mslp</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.tr2nc_mslp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert MSLP tracks from ASCII to NetCDF using TR2NC utility</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input</strong> (<em>string</em>) &#8211; Path to ASCII file containing tracks</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="track_wrapper.tr2nc_vor">
+<code class="descclassname">track_wrapper.</code><code class="descname">tr2nc_vor</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.tr2nc_vor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert vorticity tracks from ASCII to NetCDF using TR2NC utility</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input</strong> (<em>string</em>) &#8211; Path to ASCII file containing tracks</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="track_wrapper.track_mslp">
+<code class="descclassname">track_wrapper.</code><code class="descname">track_mslp</code><span class="sig-paren">(</span><em>input</em>, <em>outdir</em>, <em>NH=True</em>, <em>netcdf=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.track_mslp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run TRACK on CMIP6 sea level pressure data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>string</em>) – Path to .nc file containing CMIP6 psl data</p></li>
-<li><p><strong>outdir</strong> (<em>string</em>) – Path of directory to output tracks to</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input</strong> (<em>string</em>) &#8211; Path to .nc file containing CMIP6 psl data</li>
+<li><strong>outdir</strong> (<em>string</em>) &#8211; Path of directory to output tracks to</li>
+<li><strong>NH</strong> (<em>boolean, optional</em>) &#8211; If true, tracks the Northern Hemisphere. If false, tracks Southern
+Hemisphere.</li>
+<li><strong>netcdf</strong> (<em>boolean, optional</em>) &#8211; If true, converts TRACK output to netCDF format using TR2NC utility.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="py function">
-<dt id="wrapper.track_uv_vor850">
-<code class="sig-prename descclassname">wrapper.</code><code class="sig-name descname">track_uv_vor850</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input</span></em>, <em class="sig-param"><span class="n">outdir</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wrapper.track_uv_vor850" title="Permalink to this definition">¶</a></dt>
+<dl class="function">
+<dt id="track_wrapper.track_uv_vor850">
+<code class="descclassname">track_wrapper.</code><code class="descname">track_uv_vor850</code><span class="sig-paren">(</span><em>infile</em>, <em>outdir</em>, <em>infile2='none'</em>, <em>netcdf=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.track_uv_vor850" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate 850 hPa vorticity from CMIP6 horizontal wind velocity data
 and run TRACK.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>input</strong> (<em>string</em>) – Path to .nc file containing combined CMIP6 UV data</p></li>
-<li><p><strong>outdir</strong> (<em>string</em>) – Path of directory to output tracks to</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>infile</strong> (<em>string</em>) &#8211; Path to .nc file containing combined CMIP6 UV data</li>
+<li><strong>outdir</strong> (<em>string</em>) &#8211; Path of directory to output tracks to</li>
+<li><strong>infile2</strong> (<em>string, optional</em>) &#8211; Path to second input file, if U and V are in separate files and
+need to be combined.</li>
+<li><strong>netcdf</strong> (<em>boolean, optional</em>) &#8211; If true, converts TRACK output to netCDF format using TR2NC utility.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -121,22 +188,17 @@ and run TRACK.</p>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">TRACK-CMIP6</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">TRACK Python Wrapper for CMIP6</a><ul>
+<li><a class="reference internal" href="#module-track_wrapper">Function API</a></li>
+</ul>
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -144,24 +206,26 @@ and run TRACK.</p>
   </ul></li>
 </ul>
 </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
+  <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
-    </div>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -170,11 +234,11 @@ and run TRACK.</p>
       &copy;.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
       
       |
-      <a href="_sources/index.rst.txt"
+      <a href="_sources/index.txt"
           rel="nofollow">Page source</a>
     </div>
 

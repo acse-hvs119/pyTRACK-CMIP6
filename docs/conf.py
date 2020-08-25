@@ -3,7 +3,7 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.sep.join((os.curdir,'..'))))
 
-project = 'TRACK-CMIP6'
+project = 'pyTRACK-CMIP6'
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.napoleon']
 source_suffix = '.rst'

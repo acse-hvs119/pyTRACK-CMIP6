@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Shell script for installing TRACK-1.5.2 on a standard Linux system.
+# Assumes that the user has the basic unconfigured TRACK package in home
+# directory. 
+
+sudo apt-get install csh gcc gfortran libnetcdf-dev libnetcdff-dev
+
+export CC=gcc FC=gfortran ARFLAGS=
+export PATH=${PATH}:.
+
+cd ~/TRACK-1.5.2
+
+master -build -i=linux -f=linux
+
+make utils
+

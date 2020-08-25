@@ -1,0 +1,13 @@
+xarray
+netCDF4
+cdo
+sphinx
+
+# for Basemap
+numpy
+matplotlib
+pyproj
+pyshp
+OWSLib
+Pillow
+https://github.com/matplotlib/basemap/archive/master.zip
