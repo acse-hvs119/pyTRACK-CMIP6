@@ -50,6 +50,10 @@ def setup_files():
     Configure template input files according to local machine setup 
     and copy into TRACK directory for use during preprocessing and tracking.
     """
+    # check if TRACK is installed
+    if os.path.isdir(str(Path.home()) + "/TRACK-1.5.2") == False:
+        raise Exception("TRACK-1.5.2 is not installed.")
+
     # edit RUNDATIN files
     for var in ['MSLP_A', 'VOR', 'VOR_A']:
         with open('track_wrapper/indat/template.' + var + '.in', 'r') as file:
@@ -73,6 +77,10 @@ def setup_tr2nc():
     """
     Set up TR2NC for converting TRACK output to NetCDF.
     """
+    # check if tr2nc_new.tar file exists
+    if os.path.isfile(str(Path.home()) + "/TRACK-1.5.2/utils/tr2nc_new.tar") == False:
+        raise Exception("Please run the track_wrapper.setup_files function first.")
+
     cwd = os.getcwd()
     os.chdir(str(Path.home()) + "/TRACK-1.5.2/utils")
     os.system("mv TR2NC OLD_TR2NC")
@@ -117,9 +125,13 @@ def merge_uv(file1, file2, outfile):
         u_file = file1
         v_file = file2
 
-    else:
+    elif data1.get_variable_type() == 'va':
         u_file = file2
         v_file = file1
+
+    else:
+        raise Exception("Invalid input variable type. Please input CMIP6 \
+                            ua or va file.")
 
     cdo.merge(input=" ".join((u_file, v_file)), output=outfile)
     print("Merged U and V files into UV file.")
@@ -187,6 +199,11 @@ def calc_vorticity(uv_file, outfile, copy_file=True):
     """
     cwd = os.getcwd()
 
+    # check if outfile is base name
+    if (os.path.basename(outfile) != outfile) or (outfile[-4:] != '.dat'):
+        raise Exception("Please input .dat file basename only. The output file " +
+                            "will be found in the TRACK-1.5.2/indat directory.")
+
     # gather information about data
     uv = cmip6_indat(uv_file)
     nx, ny = uv.get_nx_ny()
@@ -245,6 +262,9 @@ def track_mslp(input, outdir, NH=True, netcdf=True):
 
     data = cmip6_indat(input)
 
+    if data.get_variable_type() != "psl":
+        raise Exception("Invalid input variable type. Please input CMIP6 psl file.")
+
     print("Starting preprocessing.")
 
     gridtype = data.get_grid_type()
@@ -265,9 +285,7 @@ def track_mslp(input, outdir, NH=True, netcdf=True):
     print("Filled missing values, if any.")
 
     # clean up if it was regridded
-    if gridtype == 'gridtype  = gaussian':
-        pass
-    else:
+    if gridtype != 'gridtype  = gaussian':
         os.system("rm " + input[:-3] + "_gaussian.nc")
 
     # get data info
@@ -403,6 +421,10 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
     input_basename = os.path.basename(input)
     data = cmip6_indat(input)
 
+    if data.get_variable_type() != "va":
+        raise Exception("Invalid input variable type. Please input either " +
+                            "a combined uv file or both ua and va from CMIP6.")
+
     print("Starting preprocessing.")
 
     gridtype = data.get_grid_type()
@@ -422,9 +444,7 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
               " " + filled)
     print("Filled missing values, if any.")
 
-    if gridtype == 'gridtype  = gaussian':
-        pass
-    else:
+    if gridtype != 'gridtype  = gaussian':
         os.system("rm " + input[:-3] + "_gaussian.nc")
 
     # get data info
@@ -527,6 +547,12 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
 
     os.chdir(cwd)
     return
+
+#
+# ========================
+# POSTPROCESSING FUNCTIONS
+# ========================
+#
 
 def tr2nc_mslp(input):
     """
