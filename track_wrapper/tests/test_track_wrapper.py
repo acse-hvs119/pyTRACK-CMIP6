@@ -1,8 +1,9 @@
+import os
 from pytest import fixture
-
+from pathlib import Path
 
 @fixture(scope='module')
-def track_wrapper()
+def track_wrapper():
     """Perform the module import"""
     import track_wrapper
     return track_wrapper
@@ -13,9 +14,14 @@ def test_import(track_wrapper):
 
 def test_calc_vorticity(track_wrapper):
     """Test vorticity calculation function."""
-    track_wrapper.calc_vorticity('data/uv_test_filled.nc', 'pytest_vor.dat')
+    fname = "data/uv_test.nc"
+    filled = "data/uv_test_filled.nc"
+    os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + fname +
+              " " + filled)
+    track_wrapper.calc_vorticity(filled, 'pytest_vor.dat')
     assert os.path.isfile(str(Path.home()) + \
                             "/TRACK-1.5.2/indat/pytest_vor.dat")
+    os.system("rm " + filled)
     os.system("rm " + str(Path.home()) + "/TRACK-1.5.2/indat/pytest_vor.dat")
 
 def test_track_uv_vor850(track_wrapper):
