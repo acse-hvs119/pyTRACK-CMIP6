@@ -4,7 +4,10 @@
 
 ## Installation Guide
 
-The pyTRACK-CMIP6 functionalities require a Linux system with standard setups of GCC, GFortran and NetCDF, as well as a working installation of TRACK. Additionally, please make sure csh is installed. To install TRACK, you will need to download it from its [homepage](http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html). For permission to download, please contact the author of TRACK, Dr Kevin Hodges. Note that TRACK will soon be available via GitLabs. Once you have downloaded the TRACK tarball, please place it in your home directory and untar. Then, to complete the installation process, you can run the `linux_track_installation` script included in this repository.
+The pyTRACK-CMIP6 functionalities require a Linux system with standard setups of GCC, GFortran and NetCDF, as well as a working installation of TRACK. Additionally, please make sure csh is installed. To install TRACK, you will need to download it from its [homepage](http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html). For permission to download, please contact the author of TRACK, Dr Kevin Hodges. Note that TRACK will soon be available via GitLabs. Once you have downloaded the TRACK tarball, please place it in your home directory and untar. Then, to complete the installation process, the `linux_track_installation.sh` script included in this repository can be used in the following way, from the `pyTRACK-CMIP6` directory:
+```
+sudo ./linux_track_installation.sh
+```
 
 Once TRACK is installed in your home directory, please clone this repository with the following command in the Linux command line. This is a necessary step because the input files stored in this repository are needed to configure and set up TRACK.
 ```
