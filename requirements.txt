@@ -1,0 +1,11 @@
+notes
+
+I am using ubuntu 16.04
+need to get python 3.7 with ppa
+
+and then apt-get install python3.7-dev (for psutil)
+
+and then apt-get install libproj-dev proj-data proj-bin libgeos-dev
+
+and then pip install cython
+(pip install cartopy)
