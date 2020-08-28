@@ -19,14 +19,14 @@ Please ensure that you have Python 3 installed. You can check your version by ru
 python --version
 ```
 
-Next, run this from the pyTRACK-CMIP6 directory in order to configure TRACK for use by pyTRACK-CMIP6:
-```
-python setup_track.py
-```
-
 Please install the Python 3 dependencies of this package by running:
 ```
 pip install -r requirements.txt
+```
+
+Next, run this from the pyTRACK-CMIP6 directory in order to configure TRACK for use by pyTRACK-CMIP6:
+```
+python setup_track.py
 ```
 
 Afterwards, if the pyTRACK-CMIP6 main wrapper functions are to be imported and run from any directory, please install the pyTRACK-CMIP6 module using pip by running the following:
