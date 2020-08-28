@@ -23,7 +23,7 @@ python setup_track.py
 
 Please install the Python 3 dependencies of this package by running:
 ```
-pip install -r python_requirements.txt
+pip install -r requirements.txt
 ```
 
 Afterwards, if the pyTRACK-CMIP6 main wrapper functions are to be imported and run from any directory, please install the pyTRACK-CMIP6 module using pip by running the following:
@@ -73,6 +73,10 @@ with the arguments being the same as for the CMIP6 wrapper functions above. For 
 #### Other individual functions
 
 For individual functions separate from the wrappers, please refer to the documentation included in the `html` folder in this repository about details and usage.
+
+#### Graphical postprocessing
+
+Basic graphical postprocessing and examples are found in the `data` folder in the form of a Jupyter notebook. This is optional and to run requires the Basemap Python package to be installed.
 
 
 ## Using pyTRACK-CMIP6 on JASMIN
