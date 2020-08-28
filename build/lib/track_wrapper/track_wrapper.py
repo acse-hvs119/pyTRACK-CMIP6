@@ -254,7 +254,7 @@ def calc_vorticity(uv_file, outfile, copy_file=True, cmip6=True):
 # =============
 #
 
-def track_mslp(input, outdirectory, NH=True, netcdf=True):
+def track_mslp(input, outdir, NH=True, netcdf=True):
     """
     Run TRACK on CMIP6 sea level pressure data.
 
@@ -264,7 +264,7 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
     input : string
         Path to .nc file containing CMIP6 psl data
 
-    outdirectory : string
+    outdir : string
         Path of directory to output tracks to
 
     NH : boolean, optional
@@ -275,7 +275,6 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
         If true, converts TRACK output to netCDF format using TR2NC utility.
 
     """
-    outdir = os.path.abspath(os.path.expanduser(outdirectory))
     input_basename = os.path.basename(input)
 
     data = cmip6_indat(input)
@@ -395,18 +394,20 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
 
         print("Turning track output to netCDF...")
         if netcdf == True:
+            outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
+
             # tr2nc - turn tracks into netCDF files
-            os.system("gunzip '" + outdir + "/" + c_input + "/ff_trs_neg.gz'")
-            os.system("gunzip '" + outdir + "/" + c_input + "/tr_trs_neg.gz'")
-            tr2nc_mslp(outdir + "/" + c_input + "/ff_trs_neg")
-            tr2nc_mslp(outdir + "/" + c_input + "/tr_trs_neg")
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/ff_trs_neg.gz'")
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/tr_trs_neg.gz'")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/tr_trs_neg")
 
     os.system("rm indat/" + tempname)
     os.chdir(cwd)
 
     return
 
-def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
+def track_uv_vor850(infile, outdir, infile2='none', NH=True, netcdf=True):
     """
     Calculate 850 hPa vorticity from CMIP6 horizontal wind velocity data
     and run TRACK.
@@ -417,7 +418,7 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
     infile : string
         Path to .nc file containing combined CMIP6 UV data
 
-    outdirectory : string
+    outdir : string
         Path of directory to output tracks to
 
     infile2 : string, optional
@@ -432,7 +433,6 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
         If true, converts TRACK output to netCDF format using TR2NC utility.
 
     """
-    outdir = os.path.abspath(os.path.expanduser(outdirectory))
     if infile2 == 'none':
         input = infile
 
@@ -564,18 +564,20 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
 
         print("Turning track output to netCDF...")
         if netcdf == True:
+            outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
+
             # tr2nc - turn tracks into netCDF files
-            os.system("gunzip '" + outdir + "'/" + c_input + "/ff_trs_*")
-            os.system("gunzip '" + outdir + "'/" + c_input + "/tr_trs_*")
-            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
-            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
-            tr2nc_vor(outdir + "/" + c_input + "/tr_trs_pos")
-            tr2nc_vor(outdir + "/" + c_input + "/tr_trs_neg")
+            os.system("gunzip '" + outdir_check + "'/" + c_input + "/ff_trs_*")
+            os.system("gunzip '" + outdir_check + "'/" + c_input + "/tr_trs_*")
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_pos")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_neg")
 
     os.chdir(cwd)
     return
 
-def track_era5_mslp(input, outdirectory, NH=True, netcdf=True):
+def track_era5_mslp(input, outdir, NH=True, netcdf=True):
     """
     Run TRACK on ERA5 mean sea level pressure data.
 
@@ -585,7 +587,7 @@ def track_era5_mslp(input, outdirectory, NH=True, netcdf=True):
     input : string
         Path to .nc file containing ERA5 mslp data.
 
-    outdirectory : string
+    outdir : string
         Path of directory to output tracks to.
 
     NH : boolean, optional
@@ -596,7 +598,6 @@ def track_era5_mslp(input, outdirectory, NH=True, netcdf=True):
         If true, converts TRACK output to netCDF format using TR2NC utility.
 
     """
-    outdir = os.path.abspath(os.path.expanduser(outdirectory))
     input_basename = os.path.basename(input)
     data = Dataset(input, 'r')
     vars = [var for var in data.variables]
@@ -675,18 +676,20 @@ def track_era5_mslp(input, outdirectory, NH=True, netcdf=True):
 
         print("Turning track output to netCDF...")
         if netcdf == True:
+            outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
+
             # tr2nc - turn tracks into netCDF files
-            os.system("gunzip '" + outdir + "/" + c_input + "/ff_trs_neg.gz'")
-            os.system("gunzip '" + outdir + "/" + c_input + "/tr_trs_neg.gz'")
-            tr2nc_mslp(outdir + "/" + c_input + "/ff_trs_neg")
-            tr2nc_mslp(outdir + "/" + c_input + "/tr_trs_neg")
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/ff_trs_neg.gz'")
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/tr_trs_neg.gz'")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/tr_trs_neg")
 
     os.system("rm indat/" + tempname)
     os.chdir(cwd)
 
     return
 
-def track_era5_vor850(input, outdirectory, NH=True, netcdf=True):
+def track_era5_vor850(input, outdir, NH=True, netcdf=True):
 
     """
     Calculate 850 hPa vorticity from ERA5 horizontal wind velocity data
@@ -698,7 +701,7 @@ def track_era5_vor850(input, outdirectory, NH=True, netcdf=True):
     input : string
         Path to .nc file containing combined ERA5 UV data
 
-    outdirectory : string
+    outdir : string
         Path of directory to output tracks to
 
     NH : boolean, optional
@@ -709,7 +712,6 @@ def track_era5_vor850(input, outdirectory, NH=True, netcdf=True):
         If true, converts TRACK output to netCDF format using TR2NC utility.
 
     """
-    outdir = os.path.abspath(os.path.expanduser(outdirectory))
     input_basename = os.path.basename(input)
     data = Dataset(input, 'r')
     vars = [var for var in data.variables]
@@ -798,13 +800,15 @@ def track_era5_vor850(input, outdirectory, NH=True, netcdf=True):
 
         print("Turning track output to netCDF...")
         if netcdf == True:
+            outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
+
             # tr2nc - turn tracks into netCDF files
-            os.system("gunzip '" + outdir + "'/" + c_input + "/ff_trs_*")
-            os.system("gunzip '" + outdir + "'/" + c_input + "/tr_trs_*")
-            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
-            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
-            tr2nc_vor(outdir + "/" + c_input + "/tr_trs_pos")
-            tr2nc_vor(outdir + "/" + c_input + "/tr_trs_neg")
+            os.system("gunzip '" + outdir_check + "'/" + c_input + "/ff_trs_*")
+            os.system("gunzip '" + outdir_check + "'/" + c_input + "/tr_trs_*")
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_pos")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_neg")
 
     os.chdir(cwd)
 
