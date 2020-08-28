@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>TRACK Python Wrapper for CMIP6 &mdash; pyTRACK-CMIP6  documentation</title>
+    <title>pyTRACK-CMIP6: A TRACK Python Wrapper for CMIP6 &mdash; pyTRACK-CMIP6  documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -36,17 +36,22 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="track-python-wrapper-for-cmip6">
-<h1>TRACK Python Wrapper for CMIP6<a class="headerlink" href="#track-python-wrapper-for-cmip6" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="pytrack-cmip6-a-track-python-wrapper-for-cmip6">
+<h1>pyTRACK-CMIP6: A TRACK Python Wrapper for CMIP6<a class="headerlink" href="#pytrack-cmip6-a-track-python-wrapper-for-cmip6" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference external" href="http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html">TRACK</a> is a program for
 generating storm tracks from atmospheric or oceanographic data.</p>
-<p>This package implements a Python wrapper for using TRACK on CMIP6 data.</p>
+<p>This package implements a Python wrapper for using TRACK on CMIP6 mean sea level
+pressure or 850 hPa vorticity (calculated from horizontal winds) data.</p>
+<p>pyTRACK-CMIP6 requires a Linux system with a standard GCC, GFortran and NetCDF
+setup and an existing installation of TRACK-1.5.2 in the home directory.</p>
+<p>For details about the usage of this package please see the user guide included in
+this repository. This page documents the individual functions in the package.</p>
 <div class="section" id="module-track_wrapper">
 <span id="function-api"></span><h2>Function API<a class="headerlink" href="#module-track_wrapper" title="Permalink to this headline">¶</a></h2>
 <p>Python wrapper for TRACK for CMIP6 data</p>
 <dl class="function">
 <dt id="track_wrapper.calc_vorticity">
-<code class="descclassname">track_wrapper.</code><code class="descname">calc_vorticity</code><span class="sig-paren">(</span><em>uv_file</em>, <em>outfile</em>, <em>copy_file=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.calc_vorticity" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">track_wrapper.</code><code class="descname">calc_vorticity</code><span class="sig-paren">(</span><em>uv_file</em>, <em>outfile</em>, <em>copy_file=True</em>, <em>cmip6=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.calc_vorticity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use TRACK to calculate vorticity at 850 hPa from horizontal wind velocities.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -58,6 +63,7 @@ generating storm tracks from atmospheric or oceanographic data.</p>
 TRACK-1.5.2/indat directory.</li>
 <li><strong>copy_file</strong> (<em>boolean, optional</em>) &#8211; Whether or not the uv_file will be copied into the TRACK directory. This
 is not needed within the tracking functions, but needed for manual use.</li>
+<li><strong>cmip6</strong> (<em>boolean, optional</em>) &#8211; Whether or not input file is from CMIP6.</li>
 </ul>
 </td>
 </tr>
@@ -109,7 +115,7 @@ and copy into TRACK directory for use during preprocessing and tracking.</p>
 <dl class="function">
 <dt id="track_wrapper.setup_tr2nc">
 <code class="descclassname">track_wrapper.</code><code class="descname">setup_tr2nc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.setup_tr2nc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set up TR2NC for converting TRACK output to NetCDF.</p>
+<dd><p>Set up and compile TR2NC for converting TRACK output to NetCDF.</p>
 </dd></dl>
 
 <dl class="function">
@@ -141,6 +147,49 @@ and copy into TRACK directory for use during preprocessing and tracking.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="track_wrapper.track_era5_mslp">
+<code class="descclassname">track_wrapper.</code><code class="descname">track_era5_mslp</code><span class="sig-paren">(</span><em>input</em>, <em>outdir</em>, <em>NH=True</em>, <em>netcdf=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.track_era5_mslp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run TRACK on ERA5 mean sea level pressure data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input</strong> (<em>string</em>) &#8211; Path to .nc file containing ERA5 mslp data.</li>
+<li><strong>outdir</strong> (<em>string</em>) &#8211; Path of directory to output tracks to.</li>
+<li><strong>NH</strong> (<em>boolean, optional</em>) &#8211; If true, tracks the Northern Hemisphere. If false, tracks Southern
+Hemisphere.</li>
+<li><strong>netcdf</strong> (<em>boolean, optional</em>) &#8211; If true, converts TRACK output to netCDF format using TR2NC utility.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="track_wrapper.track_era5_vor850">
+<code class="descclassname">track_wrapper.</code><code class="descname">track_era5_vor850</code><span class="sig-paren">(</span><em>input</em>, <em>outdir</em>, <em>NH=True</em>, <em>netcdf=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.track_era5_vor850" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate 850 hPa vorticity from ERA5 horizontal wind velocity data
+and run TRACK.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input</strong> (<em>string</em>) &#8211; Path to .nc file containing combined ERA5 UV data</li>
+<li><strong>outdir</strong> (<em>string</em>) &#8211; Path of directory to output tracks to</li>
+<li><strong>NH</strong> (<em>boolean, optional</em>) &#8211; If true, tracks the Northern Hemisphere. If false, tracks Southern
+Hemisphere.</li>
+<li><strong>netcdf</strong> (<em>boolean, optional</em>) &#8211; If true, converts TRACK output to netCDF format using TR2NC utility.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="track_wrapper.track_mslp">
 <code class="descclassname">track_wrapper.</code><code class="descname">track_mslp</code><span class="sig-paren">(</span><em>input</em>, <em>outdir</em>, <em>NH=True</em>, <em>netcdf=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.track_mslp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run TRACK on CMIP6 sea level pressure data.</p>
@@ -163,7 +212,7 @@ Hemisphere.</li>
 
 <dl class="function">
 <dt id="track_wrapper.track_uv_vor850">
-<code class="descclassname">track_wrapper.</code><code class="descname">track_uv_vor850</code><span class="sig-paren">(</span><em>infile</em>, <em>outdir</em>, <em>infile2='none'</em>, <em>netcdf=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.track_uv_vor850" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">track_wrapper.</code><code class="descname">track_uv_vor850</code><span class="sig-paren">(</span><em>infile</em>, <em>outdir</em>, <em>infile2='none'</em>, <em>NH=True</em>, <em>netcdf=True</em><span class="sig-paren">)</span><a class="headerlink" href="#track_wrapper.track_uv_vor850" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate 850 hPa vorticity from CMIP6 horizontal wind velocity data
 and run TRACK.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -175,6 +224,8 @@ and run TRACK.</p>
 <li><strong>outdir</strong> (<em>string</em>) &#8211; Path of directory to output tracks to</li>
 <li><strong>infile2</strong> (<em>string, optional</em>) &#8211; Path to second input file, if U and V are in separate files and
 need to be combined.</li>
+<li><strong>NH</strong> (<em>boolean, optional</em>) &#8211; If true, tracks the Northern Hemisphere. If false, tracks Southern
+Hemisphere.</li>
 <li><strong>netcdf</strong> (<em>boolean, optional</em>) &#8211; If true, converts TRACK output to netCDF format using TR2NC utility.</li>
 </ul>
 </td>
@@ -194,7 +245,7 @@ need to be combined.</li>
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">TRACK Python Wrapper for CMIP6</a><ul>
+<li><a class="reference internal" href="#">pyTRACK-CMIP6: A TRACK Python Wrapper for CMIP6</a><ul>
 <li><a class="reference internal" href="#module-track_wrapper">Function API</a></li>
 </ul>
 </li>

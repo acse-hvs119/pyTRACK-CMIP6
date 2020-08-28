@@ -1,0 +1,39 @@
+38
+&GLOBAL-ATTRIBUTES:
+4
+realm:atmos
+history:testing
+Conventions:CF-1.7
+featureType:trajectory
+&TRACK_ID:
+1
+cf_role:trajectory_id
+&NUM_PTS:
+2
+long_name:number of obs for this trajectory
+sample_dimension:record
+&TIME:
+6
+standard_name:time
+long_name:Time
+units:hours since 1979-12-01 00
+time_calendar: gregorian
+start:1979120100
+step:3
+&LONGITUDE:
+3
+standard_name:longitude
+long_name:Longitude
+units:degrees_east
+&LATITUDE:
+3
+standard_name:latitude
+long_name:Latitude
+units:degrees_north
+&INTENSITY:
+5
+standard_name:pressure_sea_level
+long_name:Negative Sea Level Pressure Anomaly
+units:hPa
+scale_factor:1
+coordinates:time latitude longitude TRACK_ID

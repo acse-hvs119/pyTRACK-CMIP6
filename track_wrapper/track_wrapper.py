@@ -7,8 +7,8 @@ from math import ceil
 cdo = Cdo()
 
 __all__ = ['cmip6_indat', 'regrid_cmip6', 'setup_files', 'calc_vorticity',
-           'track_mslp', 'track_uv_vor850', 'setup_tr2nc', 'tr2nc_mslp',
-           'tr2nc_vor']
+           'track_mslp', 'track_uv_vor850', 'setup_tr2nc', 'track_era5_mslp',
+           'track_era5_vor850', 'tr2nc_mslp', 'tr2nc_vor']
 
 class cmip6_indat(object):
     """Class to obtain basic information about the CMIP6 input data."""
@@ -75,16 +75,20 @@ def setup_files():
 
 def setup_tr2nc():
     """
-    Set up TR2NC for converting TRACK output to NetCDF.
+    Set up and compile TR2NC for converting TRACK output to NetCDF.
     """
     # check if tr2nc_new.tar file exists
     if os.path.isfile(str(Path.home()) + "/TRACK-1.5.2/utils/tr2nc_new.tar") == False:
         raise Exception("Please run the track_wrapper.setup_files function first.")
 
+    os.system("cp track_wrapper/tr2nc_mslp.meta.elinor " + str(Path.home()) +
+                "/TRACK-1.5.2/utils")
+
     cwd = os.getcwd()
     os.chdir(str(Path.home()) + "/TRACK-1.5.2/utils")
     os.system("mv TR2NC OLD_TR2NC")
     os.system("tar xvf tr2nc_new.tar")
+    os.system("mv tr2nc_mslp.meta.elinor TR2NC/tr2nc_mslp.meta.elinor")
 
     os.environ["CC"] = "gcc"
     os.environ["FC"] = "gfortran"
@@ -178,7 +182,7 @@ def regrid_cmip6(input, outfile):
 
     return
 
-def calc_vorticity(uv_file, outfile, copy_file=True):
+def calc_vorticity(uv_file, outfile, copy_file=True, cmip6=True):
     """
     Use TRACK to calculate vorticity at 850 hPa from horizontal wind velocities.
 
@@ -196,6 +200,9 @@ def calc_vorticity(uv_file, outfile, copy_file=True):
         Whether or not the uv_file will be copied into the TRACK directory. This
         is not needed within the tracking functions, but needed for manual use.
 
+    cmip6 : boolean, optional
+        Whether or not input file is from CMIP6.
+
     """
     cwd = os.getcwd()
 
@@ -205,11 +212,21 @@ def calc_vorticity(uv_file, outfile, copy_file=True):
                             "will be found in the TRACK-1.5.2/indat directory.")
 
     # gather information about data
-    uv = cmip6_indat(uv_file)
-    nx, ny = uv.get_nx_ny()
     year = cdo.showyear(input=uv_file)[0]
-    u_name = uv.vars[-2]
-    v_name = uv.vars[-1]
+
+    if cmip6 == True:
+        uv = cmip6_indat(uv_file)
+        nx, ny = uv.get_nx_ny()
+        u_name = uv.vars[-2]
+        v_name = uv.vars[-1]
+
+    else:
+        uv = Dataset(uv_file, 'r')
+        vars = [var for var in uv.variables]
+        nx = str(len(uv.variables['lon'][:]))
+        ny = str(len(uv.variables['lat'][:]))
+        u_name = vars[-2]
+        v_name = vars[-1]
 
     if copy_file == True: # copy input data to TRACK/indat directory
         tempname = "temp_file.nc"
@@ -291,7 +308,7 @@ def track_mslp(input, outdir, NH=True, netcdf=True):
     # get data info
     data = cmip6_indat(filled)
     nx, ny = data.get_nx_ny()
-    years = cdo.showyear(input=filled)
+    years = cdo.showyear(input=filled)[0].split()
 
     # files need to be moved to TRACK directory for TRACK to find them
     # copy data into TRACK indat directory
@@ -322,7 +339,7 @@ def track_mslp(input, outdir, NH=True, netcdf=True):
         data = cmip6_indat("indat/"+year_file)
         ntime = data.get_timesteps()
         nchunks = ceil(ntime/62)
-        c_input = year + "_" + input_basename[:-3]
+        c_input = year + "_" + hemisphere + "_" + input_basename[:-3]
 
         # spectral filtering
         # NOTE: NORTHERN HEMISPHERE; add SH option???
@@ -375,21 +392,22 @@ def track_mslp(input, outdir, NH=True, netcdf=True):
         # cleanup
         os.system("rm indat/"+year_file)
 
+        print("Turning track output to netCDF...")
         if netcdf == True:
             outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
 
             # tr2nc - turn tracks into netCDF files
-            os.system("gunzip '" + outdir_check + "'/" + c_input + "/ff_trs_neg")
-            os.system("gunzip '" + outdir_check + "'/" + c_input + "/tr_trs_neg")
-            tr2nc_vor("'" + outdir_check + "'/" + c_input + '/ff_trs_neg')
-            tr2nc_vor("'" + outdir_check + "'/" + c_input + '/tr_trs_neg')
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/ff_trs_neg.gz'")
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/tr_trs_neg.gz'")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/tr_trs_neg")
 
     os.system("rm indat/" + tempname)
     os.chdir(cwd)
 
     return
 
-def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
+def track_uv_vor850(infile, outdir, infile2='none', NH=True, netcdf=True):
     """
     Calculate 850 hPa vorticity from CMIP6 horizontal wind velocity data
     and run TRACK.
@@ -406,6 +424,10 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
     infile2 : string, optional
         Path to second input file, if U and V are in separate files and
         need to be combined.
+
+    NH : boolean, optional
+        If true, tracks the Northern Hemisphere. If false, tracks Southern
+        Hemisphere.
 
     netcdf : boolean, optional
         If true, converts TRACK output to netCDF format using TR2NC utility.
@@ -450,20 +472,25 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
     # get data info
     data = cmip6_indat(filled)
     nx, ny = data.get_nx_ny()
-    years = cdo.showyear(input=filled)
-    
+    years = cdo.showyear(input=filled)[0].split()
+
     # copy data into TRACK indat directory
     ## files need to be moved to TRACK directory for TRACK to find them
     tempname = "temp_file.nc"
-    os.system("cp " + filled + " " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
+    os.system("cp '" + filled + "' " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
               tempname)
-    os.system("rm " + filled)
+    os.system("rm '" + filled + "'")
     print("Data copied into TRACK/indat directory.")
 
     # change working directory
     cwd = os.getcwd()
     os.chdir(str(Path.home()) + "/TRACK-1.5.2")
-    
+
+    if NH == True:
+        hemisphere = "NH"
+    else:
+        hemisphere = "SH"
+
     # do tracking for one year at a time
     for year in years:
         print(year + "...")
@@ -481,10 +508,10 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
         tempname = "vor850_temp.dat"
         calc_vorticity("./indat/"+year_file, tempname, copy_file=False)
         year_file = tempname
-        c_input = year + "_vor850_" + input_basename[:-3]
+        c_input = year + "_" + hemisphere + "_" + "_vor850_" + \
+                    input_basename[:-3]
 
         # spectral filtering
-        # NOTE: NORTHERN HEMISPHERE; add SH option???
         if int(ny) >= 96: # T63
             fname = "T63filt_" + year + ".dat"
             line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + \
@@ -493,8 +520,8 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
             # NH
             line_5 = "master -c=" + c_input + " -e=track.linux -d=now -i=" + \
                         fname + " -f=y" + year + \
-                        " -j=RUN_AT.in -k=initial.T63_NH -n=1,62," + \
-                        str(nchunks) + " -o='" + outdir + \
+                        " -j=RUN_AT.in -k=initial.T63_" + hemisphere + \
+                        " -n=1,62," + str(nchunks) + " -o='" + outdir + \
                         "' -r=RUN_AT_ -s=RUNDATIN.VOR"
 
         else: # T42
@@ -505,7 +532,8 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
             # NH
             line_5 = "master -c=" + c_input + " -e=track.linux -d=now -i=" + \
                         fname + " -f=y" + year + \
-                        " -j=RUN_AT.in -k=initial.T42_NH -n=1,62," + \
+                        " -j=RUN_AT.in -k=initial.T42_" + hemisphere + \
+                        " -n=1,62," + \
                         str(nchunks) + " -o='" + outdir + \
                         "' -r=RUN_AT_ -s=RUNDATIN.VOR"
 
@@ -534,19 +562,258 @@ def track_uv_vor850(infile, outdir, infile2='none', netcdf=True):
         # cleanup
         os.system("rm indat/"+year_file)
 
+        print("Turning track output to netCDF...")
         if netcdf == True:
             outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
 
             # tr2nc - turn tracks into netCDF files
             os.system("gunzip '" + outdir_check + "'/" + c_input + "/ff_trs_*")
             os.system("gunzip '" + outdir_check + "'/" + c_input + "/tr_trs_*")
-            tr2nc_vor("'" + outdir_check + "'/" + c_input + '/ff_trs_pos')
-            tr2nc_vor("'" + outdir_check + "'/" + c_input + '/ff_trs_neg')
-            tr2nc_vor("'" + outdir_check + "'/" + c_input + '/tr_trs_pos')
-            tr2nc_vor("'" + outdir_check + "'/" + c_input + '/tr_trs_neg')
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_pos")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_neg")
 
     os.chdir(cwd)
     return
+
+def track_era5_mslp(input, outdir, NH=True, netcdf=True):
+    """
+    Run TRACK on ERA5 mean sea level pressure data.
+
+    Parameters
+    ----------
+
+    input : string
+        Path to .nc file containing ERA5 mslp data.
+
+    outdir : string
+        Path of directory to output tracks to.
+
+    NH : boolean, optional
+        If true, tracks the Northern Hemisphere. If false, tracks Southern
+        Hemisphere.
+
+    netcdf : boolean, optional
+        If true, converts TRACK output to netCDF format using TR2NC utility.
+
+    """
+    input_basename = os.path.basename(input)
+    data = Dataset(input, 'r')
+    vars = [var for var in data.variables]
+    nx = str(len(data.variables['lon'][:]))
+    ny = str(len(data.variables['lat'][:]))
+
+    if vars[-1] != "msl":
+        raise Exception("Invalid input variable type. Please input ERA5 mslp file.")
+
+    years = cdo.showyear(input=input)[0].split()
+
+    # files need to be moved to TRACK directory for TRACK to find them
+    # copy data into TRACK indat directory
+    tempname = "temp_file.nc"
+    os.system("cp '" + input + "' " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
+              tempname)
+    print("Data copied into TRACK/indat directory.")
+
+    # change working directory
+    cwd = os.getcwd()
+    os.chdir(str(Path.home()) + "/TRACK-1.5.2")
+
+    if NH == True:
+        hemisphere = "NH"
+    else:
+        hemisphere = "SH"
+
+    # do tracking for one year at a time
+    for year in years:
+        print(year + "...")
+
+        # select year from data
+        year_file = 'tempyear.nc'
+        cdo.selyear(year, input="indat/"+tempname, output="indat/"+year_file)
+
+        # get number of timesteps and number of chunks for tracking
+        ntime = int(len(data.variables['time'][:]))
+        nchunks = ceil(ntime/62)
+        c_input = year + "_" + hemisphere + "_" + input_basename[:-3]
+
+        # spectral filtering
+        # NOTE: NORTHERN HEMISPHERE; add SH option???
+        fname = "T63filt_" + year + ".dat"
+        line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + \
+                    "/;s/TRUNC/63/\" specfilt_nc.in > spec.test"
+        line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
+        # NH
+        line_5 = "master -c=" + c_input + " -e=track.linux -d=now -i=" + \
+                    fname + " -f=y" + year + \
+                    " -j=RUN_AT.in -k=initial.T63_" + hemisphere + \
+                    " -n=1,62," + str(nchunks) + " -o='" + outdir + \
+                    "' -r=RUN_AT_ -s=RUNDATIN.MSLP"
+
+        line_2 = "bin/track.linux -i " + year_file + " -f y" + year + \
+                    " < spec.test"
+        line_4 = "rm outdat/specfil.y" + year + "_band000"
+
+        # setting environment variables
+        os.environ["CC"] = "gcc"
+        os.environ["FC"] = "gfortran"
+        os.environ["ARFLAGS"] = ""
+        os.environ["PATH"] += ":." 
+
+        # executing the lines to run TRACK
+        print("Spectral filtering...")
+        os.system(line_1)
+        os.system(line_2)
+        os.system(line_3)
+        os.system(line_4)
+
+        print("Running TRACK...")
+        os.system(line_5)
+
+        # cleanup
+        os.system("rm indat/"+year_file)
+
+        print("Turning track output to netCDF...")
+        if netcdf == True:
+            outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
+
+            # tr2nc - turn tracks into netCDF files
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/ff_trs_neg.gz'")
+            os.system("gunzip '" + outdir_check + "/" + c_input + "/tr_trs_neg.gz'")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_mslp(outdir_check + "/" + c_input + "/tr_trs_neg")
+
+    os.system("rm indat/" + tempname)
+    os.chdir(cwd)
+
+    return
+
+def track_era5_vor850(input, outdir, NH=True, netcdf=True):
+
+    """
+    Calculate 850 hPa vorticity from ERA5 horizontal wind velocity data
+    and run TRACK.
+
+    Parameters
+    ----------
+
+    input : string
+        Path to .nc file containing combined ERA5 UV data
+
+    outdir : string
+        Path of directory to output tracks to
+
+    NH : boolean, optional
+        If true, tracks the Northern Hemisphere. If false, tracks Southern
+        Hemisphere.
+
+    netcdf : boolean, optional
+        If true, converts TRACK output to netCDF format using TR2NC utility.
+
+    """
+    input_basename = os.path.basename(input)
+    data = Dataset(input, 'r')
+    vars = [var for var in data.variables]
+    nx = str(len(data.variables['lon'][:]))
+    ny = str(len(data.variables['lat'][:]))
+
+    if (vars[-1] != "var132") or (vars[-2] != "var131"):
+        raise Exception("Invalid input variable type. Please input " +
+                            "a UV file from ERA5.")
+
+    years = cdo.showyear(input=input)[0].split()
+
+    # copy data into TRACK indat directory
+    ## files need to be moved to TRACK directory for TRACK to find them
+    tempname = "temp_file.nc"
+    os.system("cp '" + input + "' " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
+              tempname)
+    print("Data copied into TRACK/indat directory.")
+
+    # change working directory
+    cwd = os.getcwd()
+    os.chdir(str(Path.home()) + "/TRACK-1.5.2")
+
+    if NH == True:
+        hemisphere = "NH"
+    else:
+        hemisphere = "SH"
+
+    # do tracking for one year at a time
+    for year in years:
+        print(year + "...")
+
+        # select year from data
+        year_file = 'tempyear.nc'
+        cdo.selyear(year, input="indat/"+tempname, output="indat/"+year_file)
+
+        # get number of timesteps and number of chunks for tracking
+        ntime = int(len(data.variables['time'][:]))
+        nchunks = ceil(ntime/62)
+
+        # calculate vorticity from UV
+        tempname = "vor850_temp.dat"
+        calc_vorticity("./indat/"+year_file, tempname, copy_file=False,
+                        cmip6=False)
+        year_file = tempname
+        c_input = year + "_" + hemisphere + "_" + "_vor850_" + \
+                    input_basename[:-3]
+
+        # spectral filtering, T42
+        fname = "T42filt_" + year + ".dat"
+        line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + \
+                    "/;s/TRUNC/42/\" specfilt.in > spec.test"
+        line_3 = "mv outdat/specfil.y" + year + "_band001 indat/" + fname
+        # NH
+        line_5 = "master -c=" + c_input + " -e=track.linux -d=now -i=" + \
+                    fname + " -f=y" + year + \
+                    " -j=RUN_AT.in -k=initial.T42_" + hemisphere + \
+                    " -n=1,62," + \
+                    str(nchunks) + " -o='" + outdir + \
+                    "' -r=RUN_AT_ -s=RUNDATIN.VOR"
+
+        line_2 = "bin/track.linux -i " + year_file + " -f y" + year + \
+                    " < spec.test"
+        line_4 = "rm outdat/specfil.y" + year + "_band000"
+
+        # setting environment variables
+        os.environ["CC"] = "gcc"
+        os.environ["FC"] = "gfortran"
+        os.environ["ARFLAGS"] = ""
+        os.environ["PATH"] += ":." 
+
+        # executing the lines to run TRACK
+        print("Spectral filtering...")
+
+        os.system(line_1)
+        os.system(line_2)
+        os.system(line_3)
+        os.system(line_4)
+
+        print("Running TRACK...")
+
+        os.system(line_5)
+
+        # cleanup
+        os.system("rm indat/"+year_file)
+
+        print("Turning track output to netCDF...")
+        if netcdf == True:
+            outdir_check = os.path.expanduser(outdir) # in case outdir contains "~"
+
+            # tr2nc - turn tracks into netCDF files
+            os.system("gunzip '" + outdir_check + "'/" + c_input + "/ff_trs_*")
+            os.system("gunzip '" + outdir_check + "'/" + c_input + "/tr_trs_*")
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_pos")
+            tr2nc_vor(outdir_check + "/" + c_input + "/tr_trs_neg")
+
+    os.chdir(cwd)
+
+    return
+
 
 #
 # ========================
