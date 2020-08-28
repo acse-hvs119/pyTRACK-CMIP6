@@ -8,7 +8,7 @@ The pyTRACK-CMIP6 functionalities require a Linux system with standard setups of
 
 Once TRACK is installed in your home directory, please clone this repository with the following command in the Linux command line. This is a necessary step because the input files stored in this repository are needed to configure and set up TRACK.
 ```
-git clone https://github.com/acse-hvs119/TRACK-cmip6.git
+git clone https://github.com/acse-hvs119/pyTRACK-CMIP6.git
 ```
 
 Please ensure that you have Python 3 installed. You can check your version by running the following. Note that on machines with Python 2.7 installed beforehand, the command to call Python 3 would be `python3` instead of `python`.
