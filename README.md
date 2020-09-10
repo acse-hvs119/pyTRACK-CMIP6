@@ -4,7 +4,7 @@
 
 ## Installation Guide
 
-The pyTRACK-CMIP6 functionalities require a Linux system with standard setups of GCC, GFortran and NetCDF, as well as a working installation of TRACK. Additionally, please make sure csh is installed. To install TRACK, you will need to download it from its [homepage](http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html). For permission to download, please contact the author of TRACK, Dr Kevin Hodges. Note that TRACK will soon be available via GitLabs. Once you have downloaded the TRACK tarball, please place it in your home directory and untar. Then, to complete the installation process, the `linux_track_installation.sh` script included in this repository can be used in the following way, from the `pyTRACK-CMIP6` directory:
+The pyTRACK-CMIP6 functionalities require a Linux system with standard setups of GCC, GFortran and NetCDF, as well as a working installation of TRACK. Additionally, please make sure csh is installed. To install TRACK, you will need to download it from its [homepage](http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html). For permission to download, please contact the author of TRACK, Dr Kevin Hodges. Note that TRACK will soon be available via GitLabs. Due to somce path dependencies in TRACK, it is highly recommended to install TRACK in your home folder. Once you have downloaded the TRACK tarball, please place it in your home directory and untar. Then, to complete the installation process, the `linux_track_installation.sh` script included in this repository can be used in the following way, from the `pyTRACK-CMIP6` directory:
 ```
 sudo ./linux_track_installation.sh
 ```
@@ -19,7 +19,7 @@ Please ensure that you have Python 3 installed. You can check your version by ru
 python --version
 ```
 
-Please install the Python 3 dependencies of this package by running:
+Change into the pyTRACK-CMIP6 directory and install the Python 3 dependencies of this package by running:
 ```
 pip install -r requirements.txt
 ```
@@ -84,7 +84,7 @@ Basic graphical postprocessing and examples are found in the `data` folder in th
 
 ## Using pyTRACK-CMIP6 on JASMIN
 
-It is possible to use pyTRACK-CMIP6 on JASMIN, but it will require a few extra steps due to the way that NetCDF is set up there. If you are using JASMIN, please also have TRACK in your home directory and refer to the following method to install TRACK:
+It is possible to use pyTRACK-CMIP6 on JASMIN, but the installation will require a few extra steps due to the way that NetCDF is set up there. Due to somce path dependencies in TRACK, it is highly recommended to install TRACK in your home directory. Please ensure that enough disk space is available in your JASMIN home directory to accommodate copies of the input data in the TRACK directory, which is required for running TRACK. To install, please also have TRACK in your home directory and refer to the following method:
 ```
 module load netcdf/gnu/4.4.7/4.3.2
 export CC=gcc FC=gfortran ARFLAGS=
