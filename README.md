@@ -4,17 +4,17 @@
 
 ## Installation Guide
 
+To begin, please clone this repository with the following command in the Linux command line. This repository does not need to exist in the home directory, but this is a necessary step because the input files stored in this repository are needed to configure and set up TRACK.
+```
+git clone https://github.com/acse-hvs119/pyTRACK-CMIP6.git
+```
+
 The pyTRACK-CMIP6 functionalities require a Linux system with standard setups of GCC, GFortran and NetCDF, as well as a working installation of TRACK. Additionally, please make sure csh is installed. To install TRACK, you will need to download it from its [homepage](http://www.nerc-essc.ac.uk/~kih/TRACK/Track.html). For permission to download, please contact the author of TRACK, Dr Kevin Hodges. Note that TRACK will soon be available via GitLabs. Due to somce path dependencies in TRACK, it is highly recommended to install TRACK in your home folder. Once you have downloaded the TRACK tarball, please place it in your home directory and untar. Then, to complete the installation process, the `linux_track_installation.sh` script included in this repository can be used in the following way, from the `pyTRACK-CMIP6` directory:
 ```
 sudo ./linux_track_installation.sh
 ```
 
-Once TRACK is installed in your home directory, please clone this repository with the following command in the Linux command line. This is a necessary step because the input files stored in this repository are needed to configure and set up TRACK.
-```
-git clone https://github.com/acse-hvs119/pyTRACK-CMIP6.git
-```
-
-Please ensure that you have Python 3 installed. You can check your version by running the following. Note that on machines with Python 2.7 installed beforehand, the command to call Python 3 would be `python3` instead of `python`.
+Please ensure that you have Python 3.6 or above installed. You can check your version by running the following. Note that on machines with Python 2.7 installed beforehand, the command to call Python 3 would be `python3` instead of `python`.
 ```
 python --version
 ```
@@ -105,6 +105,11 @@ source [/path/to/my_virtual_env]/bin/activate
 ```
 To activate it in every session afterwards, only the last line is needed.
 
-Once the Python virtual environment is set up, follow the installation steps from above.
+Once the Python virtual environment is set up, follow the installation steps from above. It is important to note that the setup of the TR2NC utility that converts TRACK output to NetCDF format may fail the first time on JASMIN. However, it will install normally afterwards - after running the `setup_track.py` script, please wait a while and run the following command from the TRACK directory:
+
+```
+make utils
+```
+And check that TR2NC was installed by making sure the `tr2nc` program exists under the directory `TRACK-1.5.2/utils/bin`.
 
 Before using the functions as described in the user instructions section, please ensure that the Python virtual environment is activated. Then, pyTRACK-CMIP6 can be run as usual.
