@@ -91,7 +91,7 @@ export CC=gcc FC=gfortran ARFLAGS=
 export NETCDF=/apps/libs/netCDF/gnu4.4.7/4.3.2
 export PATH=${PATH}:.
 ```
-Then, from within the `~/TRACK-1.5.2` directory, run:
+Note that this only needs to be done for installation. Then, from within the `~/TRACK-1.5.2` directory, run:
 ```
 master -build -i=linux -f=linux
 make utils
