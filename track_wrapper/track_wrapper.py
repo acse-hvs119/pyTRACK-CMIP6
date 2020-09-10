@@ -280,8 +280,21 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
 
     data = cmip6_indat(input)
 
-    if data.get_variable_type() != "psl":
+    if "psl" not in data.vars:
         raise Exception("Invalid input variable type. Please input CMIP6 psl file.")
+
+    extr = input[:-3] + "_extr.nc"
+
+    # remove unnecessary variables
+    if "time_bnds" in data.vars:
+        ncks = "time_bnds"
+        if "lat_bnds" in data.vars:
+            ncks += ",lat_bnds,lon_bnds"
+        os.system("ncks -C -O -x -v " + ncks + " " + input + " " + extr)
+    elif "lat_bnds" in data.vars:
+        os.system("ncks -C -O -x -v lat_bnds,lon_bnds " + input + " " + extr)
+    else:
+        extr = input
 
     print("Starting preprocessing.")
 
@@ -289,12 +302,12 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
     # check if regridding is needed, do nothing if already gaussian
     if gridtype == 'gridtype  = gaussian':
         print("No regridding needed.")
-        gridcheck = input
+        gridcheck = extr
 
     else:
     # regrid
         gridcheck = input[:-3] + "_gaussian.nc"
-        regrid_cmip6(input, gridcheck)
+        regrid_cmip6(extr, gridcheck)
 
     # fill missing values
     filled = gridcheck[:-3] + "_filled.nc"
@@ -302,9 +315,11 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
               " " + filled)
     print("Filled missing values, if any.")
 
-    # clean up if it was regridded
+    # clean up if it was regridded and if variables were removed
     if gridtype != 'gridtype  = gaussian':
         os.system("rm " + input[:-3] + "_gaussian.nc")
+    if extr != input:
+        os.system("rm " + extr)
 
     # get data info
     data = cmip6_indat(filled)
@@ -443,7 +458,7 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
     input_basename = os.path.basename(input)
     data = cmip6_indat(input)
 
-    if data.get_variable_type() != "va":
+    if ("va" not in data.vars) or ("ua" not in data.vars):
         raise Exception("Invalid input variable type. Please input either " +
                             "a combined uv file or both ua and va from CMIP6.")
 
