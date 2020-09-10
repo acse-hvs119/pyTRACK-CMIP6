@@ -107,9 +107,4 @@ To activate it in every session afterwards, only the last line is needed.
 
 Once the Python virtual environment is set up, follow the installation steps from above.
 
-Before using the functions as described in the user instructions section, please make sure to load the netcdf module and that the NETCDF environment variable is set.
-```
-module load netcdf/gnu/4.4.7/4.3.2
-export NETCDF=/apps/libs/netCDF/gnu4.4.7/4.3.2
-```
-Then, pyTRACK-CMIP6 can be run as usual.
+Before using the functions as described in the user instructions section, please ensure that the Python virtual environment is activated. Then, pyTRACK-CMIP6 can be run as usual.
