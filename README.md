@@ -45,6 +45,7 @@ After installation, the module can be imported with the following command, from 
 
 #### CMIP6 TRACK wrapper functions
 
+Before running the wrapper functions, please ensure that there is sufficient space available in your TRACK installation directory to store the input data and the preprocessing/TRACK outputs produced during runtime.
 To run pyTRACK-CMIP6 on CMIP6 sea level pressure (psl) data:
 ```
 >>> import track_wrapper
