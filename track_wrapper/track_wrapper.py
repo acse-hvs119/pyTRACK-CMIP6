@@ -55,7 +55,7 @@ def setup_files():
         raise Exception("TRACK-1.5.2 is not installed.")
 
     # edit RUNDATIN files
-    for var in ['MSLP_A', 'VOR', 'VOR_A']:
+    for var in ['MSLP', 'MSLP_A', 'VOR', 'VOR_A']:
         with open('track_wrapper/indat/template.' + var + '.in', 'r') as file:
             contents = file.read()
         contents = contents.replace('DIR', str(Path.home()))
@@ -278,23 +278,35 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
     outdir = os.path.abspath(os.path.expanduser(outdirectory))
     input_basename = os.path.basename(input)
 
-    data = cmip6_indat(input)
+    # files need to be moved to TRACK directory for TRACK to find them
+    # copy data into TRACK indat directory
+    tempname = "temp_file.nc"
+    os.system("cp " + input + " " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
+              tempname)
+    # os.system("rm " + filled)
+    print("Data copied into TRACK/indat directory.")
+
+    # change working directory
+    cwd = os.getcwd()
+    os.chdir(str(Path.home()) + "/TRACK-1.5.2")
+
+    data = cmip6_indat(tempname)
 
     if "psl" not in data.vars:
         raise Exception("Invalid input variable type. Please input CMIP6 psl file.")
 
-    extr = input[:-3] + "_extr.nc"
+    extr = tempname[:-3] + "_extr.nc"
 
     # remove unnecessary variables
     if "time_bnds" in data.vars:
         ncks = "time_bnds"
         if "lat_bnds" in data.vars:
             ncks += ",lat_bnds,lon_bnds"
-        os.system("ncks -C -O -x -v " + ncks + " " + input + " " + extr)
+        os.system("ncks -C -O -x -v " + ncks + " " + tempname + " " + extr)
     elif "lat_bnds" in data.vars:
-        os.system("ncks -C -O -x -v lat_bnds,lon_bnds " + input + " " + extr)
+        os.system("ncks -C -O -x -v lat_bnds,lon_bnds " + tempname + " " + extr)
     else:
-        extr = input
+        extr = tempname
 
     print("Starting preprocessing.")
 
@@ -306,7 +318,7 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
 
     else:
     # regrid
-        gridcheck = input[:-3] + "_gaussian.nc"
+        gridcheck = tempname[:-3] + "_gaussian.nc"
         regrid_cmip6(extr, gridcheck)
 
     # fill missing values
@@ -317,26 +329,14 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
 
     # clean up if it was regridded and if variables were removed
     if gridtype != 'gridtype  = gaussian':
-        os.system("rm " + input[:-3] + "_gaussian.nc")
-    if extr != input:
+        os.system("rm " + tempname[:-3] + "_gaussian.nc")
+    if extr != tempname:
         os.system("rm " + extr)
 
     # get data info
     data = cmip6_indat(filled)
     nx, ny = data.get_nx_ny()
     years = cdo.showyear(input=filled)[0].split()
-
-    # files need to be moved to TRACK directory for TRACK to find them
-    # copy data into TRACK indat directory
-    tempname = "temp_file.nc"
-    os.system("cp " + filled + " " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
-              tempname)
-    os.system("rm " + filled)
-    print("Data copied into TRACK/indat directory.")
-
-    # change working directory
-    cwd = os.getcwd()
-    os.chdir(str(Path.home()) + "/TRACK-1.5.2")
 
     if NH == True:
         hemisphere = "NH"
@@ -456,38 +456,6 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
         input = infile[:-3] + "_merged.nc"
 
     input_basename = os.path.basename(input)
-    data = cmip6_indat(input)
-
-    if ("va" not in data.vars) or ("ua" not in data.vars):
-        raise Exception("Invalid input variable type. Please input either " +
-                            "a combined uv file or both ua and va from CMIP6.")
-
-    print("Starting preprocessing.")
-
-    gridtype = data.get_grid_type()
-    # check if regridding is needed, do nothing if already gaussian
-    if gridtype == 'gridtype  = gaussian':
-        print("No regridding needed.")
-        gridcheck = input
-
-    else:
-    # regrid
-        gridcheck = input[:-3] + "_gaussian.nc"
-        regrid_cmip6(input, gridcheck)
-
-    # fill missing values
-    filled = gridcheck[:-3] + "_filled.nc"
-    os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + gridcheck +
-              " " + filled)
-    print("Filled missing values, if any.")
-
-    if gridtype != 'gridtype  = gaussian':
-        os.system("rm " + input[:-3] + "_gaussian.nc")
-
-    # get data info
-    data = cmip6_indat(filled)
-    nx, ny = data.get_nx_ny()
-    years = cdo.showyear(input=filled)[0].split()
 
     # copy data into TRACK indat directory
     ## files need to be moved to TRACK directory for TRACK to find them
@@ -500,6 +468,53 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
     # change working directory
     cwd = os.getcwd()
     os.chdir(str(Path.home()) + "/TRACK-1.5.2")
+
+    data = cmip6_indat(tempname)
+
+    if ("va" not in data.vars) or ("ua" not in data.vars):
+        raise Exception("Invalid input variable type. Please input either " +
+                            "a combined uv file or both ua and va from CMIP6.")
+
+    print("Starting preprocessing.")
+
+    # remove unnecessary variables
+    extr = tempname[:-3] + "_extr.nc"
+    if "time_bnds" in data.vars:
+        ncks = "time_bnds"
+        if "lat_bnds" in data.vars:
+            ncks += ",lat_bnds,lon_bnds"
+        os.system("ncks -C -O -x -v " + ncks + " " + tempname + " " + extr)
+    elif "lat_bnds" in data.vars:
+        os.system("ncks -C -O -x -v lat_bnds,lon_bnds " + tempname + " " + extr)
+    else:
+        extr = tempname
+
+    gridtype = data.get_grid_type()
+    # check if regridding is needed, do nothing if already gaussian
+    if gridtype == 'gridtype  = gaussian':
+        print("No regridding needed.")
+        gridcheck = tempname
+
+    else:
+    # regrid
+        gridcheck = tempname[:-3] + "_gaussian.nc"
+        regrid_cmip6(tempname, gridcheck)
+
+    # fill missing values
+    filled = gridcheck[:-3] + "_filled.nc"
+    os.system("ncatted -a _FillValue,,d,, -a missing_value,,d,, " + gridcheck +
+              " " + filled)
+    print("Filled missing values, if any.")
+
+    if gridtype != 'gridtype  = gaussian':
+        os.system("rm " + tempname[:-3] + "_gaussian.nc")
+    if extr != tempname:
+        os.system("rm " + extr)
+
+    # get data info
+    data = cmip6_indat(filled)
+    nx, ny = data.get_nx_ny()
+    years = cdo.showyear(input=filled)[0].split()
 
     if NH == True:
         hemisphere = "NH"
