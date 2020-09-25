@@ -280,8 +280,8 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
 
     # files need to be moved to TRACK directory for TRACK to find them
     # copy data into TRACK indat directory
-    tempname = "temp_file.nc"
-    os.system("cp " + input + " " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
+    tempname = "indat/temp_file.nc"
+    os.system("cp " + input + " " + str(Path.home()) + "/TRACK-1.5.2/" +
               tempname)
     # os.system("rm " + filled)
     print("Data copied into TRACK/indat directory.")
@@ -349,7 +349,7 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
 
         # select year from data
         year_file = 'tempyear.nc'
-        cdo.selyear(year, input="indat/"+tempname, output="indat/"+year_file)
+        cdo.selyear(year, input=filled, output="indat/"+year_file)
 
         # get number of timesteps and number of chunks for tracking
         data = cmip6_indat("indat/"+year_file)
@@ -416,7 +416,7 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
             tr2nc_mslp(outdir + "/" + c_input + "/ff_trs_neg")
             tr2nc_mslp(outdir + "/" + c_input + "/tr_trs_neg")
 
-    os.system("rm indat/" + tempname)
+    os.system("rm " + tempname)
     os.chdir(cwd)
 
     return
@@ -459,8 +459,8 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
 
     # copy data into TRACK indat directory
     ## files need to be moved to TRACK directory for TRACK to find them
-    tempname = "temp_file.nc"
-    os.system("cp '" + filled + "' " + str(Path.home()) + "/TRACK-1.5.2/indat/" +
+    tempname = "indat/temp_file.nc"
+    os.system("cp '" + filled + "' " + str(Path.home()) + "/TRACK-1.5.2/" +
               tempname)
     os.system("rm '" + filled + "'")
     print("Data copied into TRACK/indat directory.")
@@ -527,7 +527,7 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
 
         # select year from data
         year_file = 'tempyear.nc'
-        cdo.selyear(year, input="indat/"+tempname, output="indat/"+year_file)
+        cdo.selyear(year, input=filled, output="indat/"+year_file)
 
         # get number of timesteps and number of chunks for tracking
         data = cmip6_indat("indat/"+year_file)
@@ -535,9 +535,9 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
         nchunks = ceil(ntime/62)
 
         # calculate vorticity from UV
-        tempname = "vor850_temp.dat"
-        calc_vorticity("./indat/"+year_file, tempname, copy_file=False)
-        year_file = tempname
+        vor850name = "vor850_temp.dat"
+        calc_vorticity("./indat/"+year_file, vor850name, copy_file=False)
+        year_file = vor850name
         c_input = year + "_" + hemisphere + "_" + "_vor850_" + \
                     input_basename[:-3]
 
@@ -602,6 +602,7 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
             tr2nc_vor(outdir + "/" + c_input + "/tr_trs_pos")
             tr2nc_vor(outdir + "/" + c_input + "/tr_trs_neg")
 
+    os.system("rm " + tempname)
     os.chdir(cwd)
     return
 
