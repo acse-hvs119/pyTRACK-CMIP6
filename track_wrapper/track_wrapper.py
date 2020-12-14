@@ -358,7 +358,6 @@ def track_mslp(input, outdirectory, NH=True, netcdf=True):
         c_input = year + "_" + hemisphere + "_" + input_basename[:-3]
 
         # spectral filtering
-        # NOTE: NORTHERN HEMISPHERE; add SH option???
         if int(ny) >= 96: # T63
             fname = "T63filt_" + year + ".dat"
             line_1 = "sed -e \"s/NX/" + nx + "/;s/NY/" + ny + \
@@ -597,7 +596,7 @@ def track_uv_vor850(infile, outdirectory, infile2='none', NH=True, netcdf=True):
             # tr2nc - turn tracks into netCDF files
             os.system("gunzip '" + outdir + "'/" + c_input + "/ff_trs_*")
             os.system("gunzip '" + outdir + "'/" + c_input + "/tr_trs_*")
-            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_pos")
             tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
             tr2nc_vor(outdir + "/" + c_input + "/tr_trs_pos")
             tr2nc_vor(outdir + "/" + c_input + "/tr_trs_neg")
@@ -832,7 +831,7 @@ def track_era5_vor850(input, outdirectory, NH=True, netcdf=True):
             # tr2nc - turn tracks into netCDF files
             os.system("gunzip '" + outdir + "'/" + c_input + "/ff_trs_*")
             os.system("gunzip '" + outdir + "'/" + c_input + "/tr_trs_*")
-            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
+            tr2nc_vor(outdir + "/" + c_input + "/ff_trs_pos")
             tr2nc_vor(outdir + "/" + c_input + "/ff_trs_neg")
             tr2nc_vor(outdir + "/" + c_input + "/tr_trs_pos")
             tr2nc_vor(outdir + "/" + c_input + "/tr_trs_neg")
