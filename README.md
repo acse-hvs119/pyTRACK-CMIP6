@@ -4,7 +4,7 @@
 
 ## Installation Guide
 
-Note: If you plan to use this module on JASMIN, please first look at the "Using pyTRACK-CMIP6 on JASMIN" section at the end.
+Note: If you plan to use this module on JASMIN, please first look at the "Using pyTRACK-CMIP6 on JASMIN" section at the end. If installing on a standard linux system, follow the instructions below.
 
 To begin, please clone this repository with the following command in the Linux command line. This repository does not need to exist in the home directory, but this is a necessary step because the input files stored in this repository are needed to configure and set up TRACK.
 ```
