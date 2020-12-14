@@ -106,7 +106,7 @@ source [/path/to/my_virtual_env]/bin/activate
 ```
 To activate it in every session afterwards, only the last line is needed.
 
-Once the Python virtual environment is set up, follow the installation steps from above. It is important to note that the setup of the TR2NC utility that converts TRACK output to NetCDF format may fail the first time on JASMIN. However, it will install normally afterwards - after running the `setup_track.py` script, please wait a while and run the following command from the TRACK directory:
+Once the Python virtual environment is set up, follow the installation steps from above, in the "Installation Guide" section, from the beginning. Please make sure that the requirements and the pyTRACK-CMIP6 python module are installed before use. It is important to note that the setup of the TR2NC utility that converts TRACK output to NetCDF format may fail the first time on JASMIN. However, it will install normally afterwards - after running the `setup_track.py` script, please wait a while and run the following command from the TRACK directory:
 
 ```
 make utils
