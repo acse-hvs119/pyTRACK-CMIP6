@@ -78,7 +78,16 @@ with the arguments being the same as for the CMIP6 wrapper functions above. For 
 
 #### Other individual functions
 
-For individual functions separate from the wrappers, please refer to the documentation included in the `html` folder in this repository about details and usage.
+If you wish to use the individual functions in this module outside of the wrappers, please refer to the documentation included in the `html` folder in this repository about details and usage.
+
+#### TRACK Output
+
+After running a wrapper function, if tracking succeeded, the output will be found in the specified output directory in the following format:
+
+For MSLP data, only negative anomalies are tracked. The two output netCDF files containing the tracks are named `tr_trs_neg.nc` and `ff_trs_neg.nc`. `tr_trs_neg.nc` contains all tracks detected in the data, while `ff_trs_neg.nc` contains only filtered tracks that last longer than 48 hours and travel at least 1000 km.
+
+For vorticity, both positive and negative anomalies are tracked, since cyclones are associated with positive anomalies in the Northern Hemisphere and negative anomalies in the Southern Hemisphere. There will be four output netCDF files that are named `tr_trs_pos.nc`, `tr_trs_neg.nc`, `ff_trs_pos.nc` and `ff_trs_neg.nc`. The `tr` files again contain all tracks and the `ff` files contain only filtered tracks that last longer than 48 hours and travel at least 1000 km.
+
 
 #### Graphical postprocessing
 
@@ -87,7 +96,9 @@ Basic graphical postprocessing and examples are found in the `data` folder in th
 
 ## Using pyTRACK-CMIP6 on JASMIN
 
-It is possible to use pyTRACK-CMIP6 on JASMIN, but the installation will require a few extra steps due to the way that NetCDF is set up there. Due to somce path dependencies in TRACK, it is highly recommended to install TRACK in your home directory. Please ensure that enough disk space is available in your JASMIN home directory to accommodate copies of the input data in the TRACK directory, which is required for running TRACK. To install, please also have TRACK in your home directory and refer to the following method:
+#### Installing TRACK
+
+It is possible to use pyTRACK-CMIP6 on JASMIN, but the installation will require a few extra steps due to the way that NetCDF is set up there. Due to some path dependencies in TRACK, it is highly recommended to install TRACK in your home directory. Please ensure that enough disk space is available in your JASMIN home directory to accommodate copies of the input data in the TRACK directory, which is required for running TRACK. To install, please also have TRACK in your home directory and refer to the following method:
 ```
 module load netcdf/gnu/4.4.7/4.3.2
 export CC=gcc FC=gfortran ARFLAGS=
@@ -100,13 +111,16 @@ master -build -i=linux -f=linux
 make utils
 ```
 
-After that, in order to run Python 3 and install the necessary dependencies for pyTRACK-CMIP6, a Python virtual environment is needed. To create one and activate it, please follow the steps below:
+#### Installing pyTRACK-CMIP6
+
+Note that installation only needs to be completed once.
+
+In order to run Python 3 and install the necessary dependencies for pyTRACK-CMIP6, a Python virtual environment is needed. To create one and activate it, please follow the steps below:
 ```
 module load jaspy
 python -m venv --system-site-packages [/path/to/my_virtual_env]
 source [/path/to/my_virtual_env]/bin/activate
 ```
-To activate it in every session afterwards, only the last line is needed.
 
 Once the Python virtual environment is set up and activated, follow the installation steps from above, in the "Installation Guide" section, from the beginning, to install pyTRACK-CMIP6 in your virtual environment. Make sure that the pyTRACK-CMIP6 python module and its dependencies are installed before use. 
 
@@ -117,4 +131,16 @@ make utils
 ```
 And check that TR2NC was installed by making sure the `tr2nc` program exists under the directory `TRACK-1.5.2/utils/bin`.
 
-Before using the functions as described in the user instructions section, please ensure that the Python virtual environment is activated. Then, pyTRACK-CMIP6 can be run as usual.
+#### Using pyTRACK-CMIP6
+
+Right after installation, the module can be used as described in the "User Instructions" section. For every subsequent JASMIN session, please follow the steps below to activate the Python virtual environment:
+
+```
+module load jaspy
+module load netcdf/gnu/4.4.7/4.3.2
+export NETCDF=/apps/libs/netCDF/gnu4.4.7/4.3.2
+source [/path/to/my_virtual_env]/bin/activate
+```
+
+Then, pyTRACK-CMIP6 can be run as usual.
+
