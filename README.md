@@ -4,6 +4,8 @@
 
 ## Installation Guide
 
+Note: If you plan to use this module on JASMIN, please first look at the "Using pyTRACK-CMIP6 on JASMIN" section at the end.
+
 To begin, please clone this repository with the following command in the Linux command line. This repository does not need to exist in the home directory, but this is a necessary step because the input files stored in this repository are needed to configure and set up TRACK.
 ```
 git clone https://github.com/acse-hvs119/pyTRACK-CMIP6.git
@@ -106,7 +108,9 @@ source [/path/to/my_virtual_env]/bin/activate
 ```
 To activate it in every session afterwards, only the last line is needed.
 
-Once the Python virtual environment is set up, follow the installation steps from above, in the "Installation Guide" section, from the beginning. Please make sure that the requirements and the pyTRACK-CMIP6 python module are installed before use. It is important to note that the setup of the TR2NC utility that converts TRACK output to NetCDF format may fail the first time on JASMIN. However, it will install normally afterwards - after running the `setup_track.py` script, please wait a while and run the following command from the TRACK directory:
+Once the Python virtual environment is set up and activated, follow the installation steps from above, in the "Installation Guide" section, from the beginning, to install pyTRACK-CMIP6 in your virtual environment. Make sure that the pyTRACK-CMIP6 python module and its dependencies are installed before use. 
+
+It is important to note that the setup of the TR2NC utility that converts TRACK output to NetCDF format may fail the first time on JASMIN. However, it will usually install normally the second time - after running the `setup_track.py` script, please wait a while and run the following command from the TRACK directory:
 
 ```
 make utils
